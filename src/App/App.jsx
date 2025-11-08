@@ -1,13 +1,13 @@
 import NavBar from "../Components/nav/NavBar";
 import Hero from "../Pages/Hero";
-import Map from "../Pages/Map";
+import MainPage from "../Pages/Main";
 
 function App() {
   return (
     <>
       {/* <NavBar />
       <Hero /> */}
-      <Map />
+      <MainPage />
     </>
   );
 }
