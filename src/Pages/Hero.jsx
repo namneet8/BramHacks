@@ -1,22 +1,25 @@
 import { m, LazyMotion, domAnimation } from "framer-motion";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom"; // Add this import for navigation
 import HeroText from "../Components/hero/HeroText";
 import HeroParticles from "../Components/hero/particles/HeroParticles";
 import SamplePrompts from "../Components/hero/SamplePrompts";
 import ChatInput from "../Components/hero/ChatInput";
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-console.log("API key",import.meta.env.VITE_GEMINI_API_KEY);
-const Hero = () => {
-  
-  const [input, setInput] = useState("");
 
-  const handleSubmit = async() => {
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+console.log("API key", import.meta.env.VITE_GEMINI_API_KEY);
+
+const Hero = () => {
+  const [input, setInput] = useState("");
+  const navigate = useNavigate(); // Add this for navigation
+
+  const handleSubmit = async () => {
     if (input.trim()) {
       console.log("Submitted:", input);
-      
+
       const fullPrompt = `
-        You are a JSON extractor. 
+        You are a JSON extractor.
 From the user's message, extract the location name and give its latitude and longitude.
 Return only JSON in this format:
 {
@@ -24,39 +27,46 @@ Return only JSON in this format:
   "latitude": <number>,
   "longitude": <number>
 }
-
 User message: "${input}"`;
       setInput("");
-    
-    try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-      const result = await model.generateContent(fullPrompt);
-      const text = result.response.text();
-      const cleanText = text
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
-    .trim();
-      console.log("text",cleanText);
-      const data = JSON.parse(cleanText);
-      console.log(data);
-      const botMsg = { role: "user", content: input };
-      localStorage.setItem("chatHistory", JSON.stringify(botMsg));
-    } catch (err) {
-      console.error(err);
-      setChat(prev => [...prev, { role: "assistant", content: "⚠️ Error fetching Gemini response." }]);
-    } finally {
-      //go to next page
+
+      try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(fullPrompt);
+        const text = result.response.text();
+        const cleanText = text
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+        console.log("text", cleanText);
+        const data = JSON.parse(cleanText);
+        console.log(data);
+
+        // Save user's first prompt as chat history (array for future appends)
+        const initialHistory = [{ role: "user", content: input }];
+        localStorage.setItem("chatHistory", JSON.stringify(initialHistory));
+
+        // Save extracted location for MainPage to load into map
+        localStorage.setItem("initialLocation", JSON.stringify({
+          name: data.location,
+          lat: data.latitude,
+          lng: data.longitude
+        }));
+
+      } catch (err) {
+        console.error(err);
+        // Optionally handle error in chat history if needed
+      } finally {
+        // Navigate to main page
+        navigate("/main"); // Adjust the route path if your MainPage route is different (e.g., "/")
+      }
     }
-  }
   };
 
   const handlePromptClick = (prompt) => {
     setInput(prompt);
     setTimeout(() => {
-      if (prompt.trim()) {
-        console.log("Submitted:", prompt);
-        setInput("");
-      }
+      handleSubmit(); // Trigger submit after setting input
     }, 300);
   };
 
@@ -69,10 +79,10 @@ User message: "${input}"`;
         >
           <HeroText />
           <HeroParticles />
-          
+
           <SamplePrompts onPromptClick={handlePromptClick} />
-          
-          <ChatInput 
+
+          <ChatInput
             input={input}
             setInput={setInput}
             onSubmit={handleSubmit}
