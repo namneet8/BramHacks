@@ -1,89 +1,129 @@
-import { useState, useEffect, useRef } from "react";
+// import React, { useState, useEffect } from "react";
+// import { GoogleGenerativeAI } from "@google/generative-ai";
+// import MicrophoneButton from "../hero/MicrophoneButton";
+// const genAI = new GoogleGenerativeAI(import.meta.env.REACT_APP_GEMINI_API_KEY);
+// function extractEntities(prompt) {
+//   const locationMatch = prompt.match(/\b(in|at|from|of)\s+([A-Z][a-zA-Z]+)/);
+//   const infoTypeMatch = prompt.match(/(weather|population|traffic|economy|tourism|crime|education|statistics|insights)/i);
+//   return {
+//     location: locationMatch ? locationMatch[2] : "unknown location",
+//     infoType: infoTypeMatch ? infoTypeMatch[0] : "general information",
+//   };
+// }
+// const ChatInterface = ({ location }) => {
 
-const ChatInterface = ({ location }) => {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I can help you learn about climate data for any Canadian location. What would you like to know?' }
-  ]);
-  const [input, setInput] = useState('');
-  const messagesEndRef = useRef(null);
+//   const scrollToBottom = () => {
+//     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+//   };
+// const [prompt, setPrompt] = useState("");
+// const [chat, setChat] = useState(() => {
+//       const saved = localStorage.getItem("chatHistory");
+//       return saved ? JSON.parse(saved) : [];
+//     });
+// const [loading, setLoading] = useState(false);
+  
+//     useEffect(() => {
+//       localStorage.setItem("chatHistory", JSON.stringify(chat));
+//     }, [chat]);
+  
+//     const handleSend = async (e) => {
+//       e.preventDefault();
+//       if (!prompt.trim()) return;
+  
+//       const userMsg = { role: "user", content: prompt };
+//       // const entities = extractEntities(prompt);
+//       // const historyText = chat.map(m => `${m.role}: ${m.content}`).join("\n");
+  
+//       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  
+//       const fullPrompt = `
+//         You are a JSON extractor. 
+// From the user's message, extract the location name and give its latitude and longitude.
+// Return only JSON in this format:
+// {
+//   "location": "<city or place>",
+//   "latitude": <number>,
+//   "longitude": <number>
+// }
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+// User message: "${prompt}"`;
+  
+//       setChat(prev => [...prev, userMsg]);
+//       setLoading(true);
+  
+//       try {
+//         const result = await model.generateContent(fullPrompt);
+//         const text = result.response.text();
+//         const botMsg = { role: "assistant", content: text };
+//         setChat(prev => [...prev, botMsg]);
+//       } catch (err) {
+//         console.error(err);
+//         setChat(prev => [...prev, { role: "assistant", content: "⚠️ Error fetching Gemini response." }]);
+//       } finally {
+//         setLoading(false);
+//         setPrompt("");
+//       }
+//     };
+  
+//     const clearChat = () => {
+//       setChat([]);
+//       localStorage.removeItem("chatHistory");
+//     };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+//   return (
+//     <div className="h-full flex flex-col bg-black">
+//       {/* Chat Header */}
+//       <div className="bg-black/60 backdrop-blur-xl border-b border-yellow-500/20 p-4">
+//         <h2 className="text-white font-semibold text-lg">Climate Assistant</h2>
+//         <p className="text-gray-400 text-sm">Ask me anything about climate data</p>
+//       </div>
 
-    const userMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+      
+//       <div className="flex-1 overflow-y-auto  space-y-3  text-white p-4">
+//         {chat.map((msg, i) => (
+//           <div
+//             key={i}
+//             className={`p-2 rounded-lg max-w-[80%] ${
+//               msg.role === "user" ? " bg-black/30 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-yellow-500/20 shadow-2xl shadow-yellow-500/10 p-2 sm:p-3 hover:border-yellow-500/30 transition-all duration-300 self-end ml-auto" : " bg-black/30 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-yellow-500/20 shadow-2xl shadow-yellow-500/10 p-2 sm:p-3 hover:border-yellow-500/30 transition-all duration-300"
+//             }`}
+//           >
+//             <b>{msg.role === "user" ? "You" : "Gemini"}:</b> {msg.content}
+//           </div>
+//         ))}
+//         {loading && <div className="text-gray-400 italic">Gemini is thinking...</div>}
+//       </div>
 
-    // Simulate AI response
-    setTimeout(() => {
-      const response = {
-        role: 'assistant',
-        content: location 
-          ? `I can provide information about ${location.name.split(',')[0]}. What specific climate data would you like to know?`
-          : 'Please select a location on the map first, then I can provide detailed climate information.'
-      };
-      setMessages(prev => [...prev, response]);
-    }, 1000);
-  };
+//       <form onSubmit={handleSend} className="relative flex items-end gap-1.5 sm:gap-2 bg-black/30 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-yellow-500/20 shadow-2xl shadow-yellow-500/10 p-2 sm:p-3 hover:border-yellow-500/30 transition-all duration-300 m-4">
+//       <MicrophoneButton />
+//         <input
+//           className="flex-1 bg-transparent text-white text-sm sm:text-base placeholder-gray-400 outline-none resize-none py-2 sm:py-3 px-1 sm:px-2 max-h-[120px] overflow-y-auto"
+//           placeholder="Ask something (e.g., Weather in Toronto)"
+//           value={prompt}
+//           onChange={(e) => setPrompt(e.target.value)}
+//         />
+//         <button
+//           type="submit"
+//           disabled={!prompt.trim()}
+//           className={`flex-shrink-0 p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300  "bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 shadow-lg shadow-yellow-500/40"`}
+//         >
+//          <svg
+//         className="w-4 h-4 sm:w-5 sm:h-5 text-white"
+//         fill="none"
+//         stroke="currentColor"
+//         viewBox="0 0 24 24"
+//       >
+//         <path
+//           strokeLinecap="round"
+//           strokeLinejoin="round"
+//           strokeWidth={2}
+//           d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+//         />
+//       </svg>
+//         </button>
+//       </form>
+//     </div>
+//   );
+// };
 
-  return (
-    <div className="h-full flex flex-col bg-black">
-      {/* Chat Header */}
-      <div className="bg-black/60 backdrop-blur-xl border-b border-yellow-500/20 p-4">
-        <h2 className="text-white font-semibold text-lg">Climate Assistant</h2>
-        <p className="text-gray-400 text-sm">Ask me anything about climate data</p>
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] rounded-2xl p-4 ${
-              msg.role === 'user'
-                ? 'bg-yellow-500 text-black'
-                : 'bg-black/60 backdrop-blur-md border border-yellow-500/20 text-white'
-            }`}>
-              <p className="text-sm">{msg.content}</p>
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Area */}
-      <div className="bg-black/60 backdrop-blur-xl border-t border-yellow-500/20 p-4">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask about climate data..."
-            className="flex-1 bg-black/40 backdrop-blur-md border border-yellow-500/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:border-yellow-500/50 transition-all"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim()}
-            className={`px-6 py-3 rounded-xl transition-all ${
-              input.trim()
-                ? 'bg-yellow-500 hover:bg-yellow-600 text-black'
-                : 'bg-black/40 border border-yellow-500/20 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Send
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default ChatInterface;
+// export default ChatInterface;
