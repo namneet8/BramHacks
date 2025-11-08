@@ -20,7 +20,7 @@ const HeroText = () => {
 
   return (
     <div
-      className="noselect w-fit h-fit text-yellow-200 absolute z-10 flex flex-col justify-center items-center rounded-[50%]"
+      className="noselect w-fit h-fit text-yellow-200 absolute z-10 flex flex-col justify-center items-center rounded-[50%] top-[30%]"
       id="repulse-div"
       onMouseMove={handleMouseMove}
       style={{ perspective: "600px" }}
