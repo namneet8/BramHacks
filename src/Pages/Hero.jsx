@@ -56,7 +56,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1 }}
-            className="absolute bottom-32 w-full max-w-3xl px-4 grid grid-cols-1 md:grid-cols-2 gap-3"
+            className="absolute bottom-36 w-full max-w-3xl px-4 grid grid-cols-1 md:grid-cols-2 gap-3"
           >
             {[
               "Show me recent wildfire activity in California",
