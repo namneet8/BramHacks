@@ -130,4 +130,28 @@ body {
   }
 }
 
+/* Optional: Custom marker styles */
+.custom-marker {
+  background: none !important;
+  border: none !important;
+}
 
+/* Leaflet container */
+.leaflet-container {
+  background: #000;
+  font-family: inherit;
+}
+
+/* Attribution styling */
+.leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(10px);
+  color: #9CA3AF !important;
+  font-size: 10px !important;
+  padding: 2px 5px !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-control-attribution a {
+  color: #EAB308 !important;
+}
