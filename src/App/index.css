@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "SuperMario";
+  src: url(/Fonts/Mario/Brugty.ttf);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+
+}
+
+body {
+  background: url("https://uploads-ssl.webflow.com/62e3ee10882dc50bcae8d07a/631a5d4631d4c55a475f3e34_noise-50.png");
+  background-color: #E4E2DD;
+  position: relative;
+  overflow-x: hidden;
+  -webkit-overflow-x: hidden;
+}
+
+.overflow-hidden-web {
+  overflow: hidden;
+  -webkit-overflow: hidden;
+}
+
+.message::after {
+  content: " ";
+  width: 10px;
+  height: 10px;
+  background: transparent;
+  position: absolute;
+  bottom: -10px;
+  right: 0;
+  border-radius: 0 0 0 100%;
+}
+
+
+.bounce {
+  display: inline-block;
+  transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.bounce:hover {
+  animation: rubberband 0.8s ease-out;
+  color: #e5a133;
+  transform: scale(1.2); /* Scales the element to make it pop */
+  text-shadow: 0 0 10px rgba(255, 224, 86, 0.8); /* Adds a glowing effect */
+}
+
+/* Rubberband animation */
+@keyframes rubberband {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.25) skewX(-15deg);
+  }
+  50% {
+    transform: scale(0.75) skewX(10deg);
+  }
+  70% {
+    transform: scale(1.15) skewX(-5deg);
+  }
+  100% {
+    transform: scale(1) skewX(0deg);
+  }
+}
+
+
+@media only screen and (min-width: 600px) {
+  .drop-shadow-div {
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-filter: drop-shadow(0 0 1.5rem #eec5d9);
+    filter: drop-shadow(0 0 1.5rem #eec5d9);
+  }
+}
+
+.loader {
+  width: 100px;
+  height: 100px;
+  border: 5px solid #B64D80;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  animation: rotation 1s linear infinite;
+}
+.loader::after {
+  content: '';  
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 5px solid;
+  border-color: #B64D80 transparent;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 
+
+@keyframes wave {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 50% 50%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 150% 150%;
+  }
+  100% {
+    background-position: 200% 200%;
+  }
+}
+
+
