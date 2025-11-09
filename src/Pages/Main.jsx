@@ -28,9 +28,9 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
   const containerRef = useRef(null);
   async function fetchAllReports() {
     const endpoints = [
-      "https://tinniest-unequivalently-karly.ngrok-free.dev/landcover-report?keyword=Toronto&lat=43.2557&lon=-79.8711",
-      "https://tinniest-unequivalently-karly.ngrok-free.dev/night-light?keyword=Hamilton&lat=43.2557&lon=-79.8711",
-      "https://tinniest-unequivalently-karly.ngrok-free.dev/air-quality?keyword=Hamilton&lat=43.2557&lon=-79.8711"
+      "https://tinniest-unequivalently-karly.ngrok-free.dev/landcover-report?keyword=Toronto&lat=43.6532&lon=-79.3832",
+      "https://tinniest-unequivalently-karly.ngrok-free.dev/night-light?keyword=Toronto&lat=43.6532&lon=-79.3832",
+      "https://tinniest-unequivalently-karly.ngrok-free.dev/air-quality?keyword=Toronto&lat=43.6532&lon=-79.3832"
     ];
   
     const headers = {
