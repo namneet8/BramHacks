@@ -14,7 +14,11 @@ const MainPage = () => {
   const [activeTab, setActiveTab] = useState("map");
   const [leftWidth, setLeftWidth] = useState(60);
   const [isDragging, setIsDragging] = useState(false);
-
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [images, setImages] = useState([]);
+  
   const containerRef = useRef(null);
 
   // Load initial location from localStorage if coming from Hero
@@ -29,6 +33,51 @@ const MainPage = () => {
 
   // Handle resize dragging
   useEffect(() => {
+    //API CALLS 
+    const params = { location: 123, longitude: 34, latitude: -70 };
+    // const queryString = new URLSearchParams(params).toString();
+    const queryString = "";
+    
+
+    fetch(`https://tinniest-unequivalently-karly.ngrok-free.dev/landcover-report?lat=43.7&lon=-79.3 `,{
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+        "Accept": "application/json"
+      }
+    }
+    )
+    .then((res) => {
+      console.log("✅ Got response object:", res);
+      console.log("Response status:", res.status);
+
+      if (!res.ok) throw new Error("Network response was not ok");
+
+      // Try to parse JSON safely
+      return res
+        .json()
+        .catch((err) => {
+          console.error("❌ JSON parse failed:", err);
+          throw new Error("Invalid JSON format");
+        });
+    })
+    .then((json) => {
+      console.log("🎯 Full response:", json);
+      setData(json);
+      if (json.images) {
+        setImages(json.images);
+        console.log("🖼️ Images:", json.images);
+      }
+    })
+    .catch((err) => {
+      console.error("🚨 Fetch error:", err);
+      setError(err.message);
+    })
+    .finally(() => {
+      console.log("✅ Fetch complete");
+      setLoading(false);
+    });
     const handleMouseMove = (e) => {
       if (!isDragging || !containerRef.current) return;
 
@@ -73,7 +122,7 @@ const MainPage = () => {
       case "satellite":
         return <SatelliteImagery location={selectedLocation} />;
       case "changes":
-        return <ChangesView location={selectedLocation} />;
+        return <ChangesView location={selectedLocation} imageArray={ images} />;
       case "terrain":
         return <TerrainView location={selectedLocation} />;
       case "data":
@@ -86,14 +135,14 @@ const MainPage = () => {
   return (
     <div ref={containerRef} className="relative w-full h-screen bg-black overflow-hidden flex">
       {/* Left Side - Dynamic Content (Map/Stats) Section */}
-      <div
-        className="relative bg-black flex flex-col"
+      <div 
+        className="relative bg-black flex flex-col flex-1 overflow-hidden"
         style={{ width: `${leftWidth}%` }}
       >
         <SearchBar onLocationSelect={setSelectedLocation} />
         <TabBar activeTab={activeTab} onTabChange={setActiveTab} tabs={tabs} />
-
-        <div className="flex-1">
+        
+        <div className="flex-1 overflow-hidden">
           {renderLeftPanel()}
         </div>
       </div>
