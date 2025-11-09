@@ -8,6 +8,7 @@ import AirQualityIndex from "../Components/stats/AirQualityIndex";
 import ChatInterface from "../Components/main/ChatInterface";
 import SearchBar from "../Components/map/SearchBar";
 import TabBar from "../Components/main/TabBar";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const MainPage = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -17,18 +18,85 @@ const MainPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [images, setImages] = useState([]);
-  const [summaryData, setSummaryData] = useState(null);
+  const [changeImages, setChangeImages] = useState([]);
+  const [nightImages, setNightImages] = useState([]);
+  const [changeSummaryData, setChangeSummaryData] = useState(null);
+  const [nightSummaryData, setNightSummaryData] = useState(null);
+  const [aqiSummaryData, setAqiSummaryData] = useState(null);
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
   
   const containerRef = useRef(null);
+  async function fetchAllReports() {
+    const endpoints = [
+      "https://tinniest-unequivalently-karly.ngrok-free.dev/landcover-report?keyword=Toronto&lat=43.2557&lon=-79.8711",
+      "https://tinniest-unequivalently-karly.ngrok-free.dev/night-light?keyword=Hamilton&lat=43.2557&lon=-79.8711",
+      "https://tinniest-unequivalently-karly.ngrok-free.dev/air-quality?keyword=Hamilton&lat=43.2557&lon=-79.8711"
+    ];
+  
+    const headers = {
+      "ngrok-skip-browser-warning": "true",
+      "Accept": "application/json"
+    };
+  
+    const [landcover, nightlight, airquality] = await Promise.all(
+      endpoints.map((url) => fetch(url, { headers }).then((res) => res.json()))
+    );
+  
+    return { landcover, nightlight, airquality };
+  }
+  
+  async function getGeminiInsights({ landcover, nightlight, airquality }) {
+    const storedHistory = localStorage.getItem("chatHistory");
+  const chatHistory = storedHistory ? JSON.parse(storedHistory) : [];
+    const nightlightSummary = {
+      average_change: nightlight?.report?.average_change ?? "N/A",
+      average_intensity_2021: nightlight?.report?.average_intensity_2021 ?? "N/A",
+      average_intensity_2025: nightlight?.report?.average_intensity_2025 ?? "N/A",
+    };
+    
+    const prompt = `
+  You are an environmental analysis assistant.
+  Use the following data summaries and chat history to provide insights.
+  
+  === Landcover Report Summary ===
+  ${JSON.stringify(landcover?.report?.change_summary, null, 2)}
+  
+  === Night Light Summary ===
+  ${JSON.stringify(nightlightSummary)}
+  
+  === Air Quality Summary ===
+  ${JSON.stringify(airquality?.monthly_aqi, null, 2)}
+  
+  === Chat History ===
+  ${chatHistory}
+  
+  Please summarize:
+  1️⃣ The environmental changes in this region.
+  2️⃣ Any patterns between land cover, light pollution, and air quality.
+  `;
+  
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const insight = response.text();
+    const newMessage = {
+      role: "assistant",
+      content: insight,
+      timestamp: new Date().toISOString(),
+    };
+    console.log(localStorage.getItem("chatHistory"));
+    const updatedChatHistory = [...chatHistory, newMessage];
+  localStorage.setItem("chatHistory", JSON.stringify(updatedChatHistory));
+  window.dispatchEvent(new Event("storage"));
 
+    return insight;
+  }
   // Load initial location from localStorage if coming from Hero
   useEffect(() => {
     const storedLocation = localStorage.getItem("initialLocation");
     if (storedLocation) {
       const parsedLocation = JSON.parse(storedLocation);
-      setSelectedLocation(parsedLocation);
-      localStorage.removeItem("initialLocation"); // Clear after loading to avoid reuse
+      setSelectedLocation(parsedLocation); // Clear after loading to avoid reuse
     }
   }, []);
 
@@ -40,52 +108,34 @@ const MainPage = () => {
     const queryString = "";
     
 
-    fetch(`https://tinniest-unequivalently-karly.ngrok-free.dev/landcover-report?lat=43.7&lon=-79.3 `,{
-      method: "GET",
-      mode: "cors",
-      headers: {
-        "ngrok-skip-browser-warning": "true",
-        "Accept": "application/json"
+    async function fetchAndAnalyze() {
+      try {
+        setLoading(true);
+  
+        const { landcover, nightlight, airquality } = await fetchAllReports();
+        setChangeImages(landcover?.images || []);
+        console.log("nightlight img", nightlight)
+        setNightImages(nightlight?.image || []);
+        console.log("Landcover Images:", landcover);
+  
+        setChangeSummaryData(landcover?.report?.change_summary);
+        setNightSummaryData(nightlight?.report?.percentage_summary);
+        setAqiSummaryData(airquality?.report?.monthly_aqi);
+  
+        const insight = await getGeminiInsights({ landcover, nightlight, airquality });
+  
+        console.log("🧠 Gemini Insights:", insight);
+        localStorage.setItem("geminiInsight", insight);
+  
+      } catch (err) {
+        console.error("🚨 Error:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     }
-    )
-    .then((res) => {
-      console.log("✅ Got response object:", res);
-      console.log("Response status:", res.status);
-
-      if (!res.ok) throw new Error("Network response was not ok");
-
-      // Try to parse JSON safely
-      return res
-        .json()
-        .catch((err) => {
-          console.error("❌ JSON parse failed:", err);
-          throw new Error("Invalid JSON format");
-        });
-    })
-    .then((json) => {
-      console.log("🎯 Full response:", json);
-      setData(json);
-      if (json.images) {
-        setImages(json.images);
-        console.log("🖼️ Images:", json.images);
-      }
-
-      // ✅ extract summary
-    if (json?.report?.percentage_summary) {
-      setSummaryData(json.report.percentage_summary);
-      console.log("📊 Extracted percentage summary:", json.report.percentage_summary);
-    }
-    })
-    .catch((err) => {
-      console.error("🚨 Fetch error:", err);
-      setError(err.message);
-    })
-    .finally(() => {
-      console.log("✅ Fetch complete");
-      setLoading(false);
-    });
-    const handleMouseMove = (e) => {
+  
+    fetchAndAnalyze();    const handleMouseMove = (e) => {
       if (!isDragging || !containerRef.current) return;
 
       const containerRect = containerRef.current.getBoundingClientRect();
@@ -146,15 +196,15 @@ const MainPage = () => {
       case "landcover":
         return (
           <LandCoverComparison
-            percentage_summary={summaryData || demoData_landCover}
+            percentage_summary={demoData_landCover}
           />
         );
       case "satellite":
-        return <SatelliteImagery location={selectedLocation} />;
+        return <SatelliteImagery location={selectedLocation} imageArray={ changeImages}/>;
       case "changes":
-        return <ChangesView location={selectedLocation} imageArray={ images} />;
+        return <ChangesView location={selectedLocation} imageArray={ changeImages} />;
       case "terrain":
-        return <TerrainView location={selectedLocation} />;
+        return <TerrainView location={selectedLocation} imageArray={ nightImages}  />;
       case "aiq":
         return <AirQualityIndex monthly_aqi={demoData_aqi.monthly_aqi} city={demoData_aqi.city} />;
 

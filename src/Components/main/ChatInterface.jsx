@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import MicrophoneButton from "../hero/MicrophoneButton";
-const genAI = new GoogleGenerativeAI(import.meta.env.REACT_APP_GEMINI_API_KEY);
+import ReactMarkdown from "react-markdown";
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 // function extractEntities(prompt) {
 //   const locationMatch = prompt.match(/\b(in|at|from|of)\s+([A-Z][a-zA-Z]+)/);
 //   const infoTypeMatch = prompt.match(/(weather|population|traffic|economy|tourism|crime|education|statistics|insights)/i);
@@ -31,6 +32,7 @@ const [loading, setLoading] = useState(false);
       localStorage.setItem("chatHistory", JSON.stringify(chat));
     }, [chat]);
   
+  
     const handleSend = async (e) => {
       e.preventDefault();
       if (!prompt.trim()) return;
@@ -39,17 +41,11 @@ const [loading, setLoading] = useState(false);
       // const entities = extractEntities(prompt);
       // const historyText = chat.map(m => `${m.role}: ${m.content}`).join("\n");
   
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const saved = localStorage.getItem("chatHistory");
       const fullPrompt = `
-        You are a JSON extractor. 
-From the user's message, extract the location name and give its latitude and longitude.
-Return only JSON in this format:
-{
-  "location": "<city or place>",
-  "latitude": <number>,
-  "longitude": <number>
-}
+      Context: ${saved}
+        You are a climate assistant. You have to provide answer to the prompt from the context.
 
 User message: "${prompt}"`;
   
@@ -93,7 +89,7 @@ User message: "${prompt}"`;
               msg.role === "user" ? " bg-black/30 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-yellow-500/20 shadow-2xl shadow-yellow-500/10 p-2 sm:p-3 hover:border-yellow-500/30 transition-all duration-300 self-end ml-auto" : " bg-black/30 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-yellow-500/20 shadow-2xl shadow-yellow-500/10 p-2 sm:p-3 hover:border-yellow-500/30 transition-all duration-300"
             }`}
           >
-            <b>{msg.role === "user" ? "You" : "Gemini"}:</b> {msg.content}
+            <b>{msg.role === "user" ? "You" : "Gemini"}:</b> <ReactMarkdown>{msg.content}</ReactMarkdown>
           </div>
         ))}
         {loading && <div className="text-gray-400 italic">Gemini is thinking...</div>}

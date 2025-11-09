@@ -41,7 +41,7 @@ const ChangesView = ({ location, imageArray }) => {
           </div>
 
           {/* Images Grid */}
-          <div
+          {/* <div
             className="grid gap-4"
             style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
           >
@@ -52,7 +52,7 @@ const ChangesView = ({ location, imageArray }) => {
             ) : (
               <div>No images available for this location.</div>
             )}
-          </div>
+          </div> */}
         </div>
       ) : (
         <div className="flex items-center justify-center h-64">

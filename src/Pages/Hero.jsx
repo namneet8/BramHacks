@@ -43,15 +43,16 @@ User message: "${input}"`;
         console.log(data);
 
         // Save user's first prompt as chat history (array for future appends)
-        const initialHistory = [{ role: "user", content: input }];
-        localStorage.setItem("chatHistory", JSON.stringify(initialHistory));
-
-        // Save extracted location for MainPage to load into map
         localStorage.setItem("initialLocation", JSON.stringify({
           name: data.location,
           lat: data.latitude,
           lng: data.longitude
         }));
+        const initialHistory = [{ role: "user", content: input }];
+        localStorage.setItem("chatHistory", JSON.stringify(initialHistory));
+        
+        // Save extracted location for MainPage to load into map
+        
 
       } catch (err) {
         console.error(err);
