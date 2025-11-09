@@ -1,5 +1,4 @@
-import { m } from "framer-motion";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import MicrophoneButton from "./MicrophoneButton";
 import SendButton from "./SendButton";
 
@@ -26,15 +25,19 @@ const ChatInput = ({ input, setInput, onSubmit }) => {
     adjustTextareaHeight();
   };
 
+  const handleTranscript = (transcript) => {
+    // Append transcript to existing input
+    const newInput = input ? `${input} ${transcript}` : transcript;
+    setInput(newInput);
+    
+    // Adjust textarea height after adding transcript
+    setTimeout(adjustTextareaHeight, 0);
+  };
+
   return (
-    <m.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 1.2 }}
-      className="absolute bottom-6 sm:bottom-8 w-full max-w-3xl px-3 sm:px-4"
-    >
+    <div className="absolute bottom-6 sm:bottom-8 w-full max-w-3xl px-3 sm:px-4">
       <div className="relative flex items-end gap-1.5 sm:gap-2 bg-black/30 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-yellow-500/20 shadow-2xl shadow-yellow-500/10 p-2 sm:p-3 hover:border-yellow-500/30 transition-all duration-300">
-        <MicrophoneButton />
+        <MicrophoneButton onTranscript={handleTranscript} />
 
         {/* Text Input */}
         <textarea
@@ -62,7 +65,7 @@ const ChatInput = ({ input, setInput, onSubmit }) => {
         <span className="hidden sm:inline">Shift + Enter for new line</span>
         <span className="sm:hidden">Shift+Enter = new line</span>
       </div>
-    </m.div>
+    </div>
   );
 };
 

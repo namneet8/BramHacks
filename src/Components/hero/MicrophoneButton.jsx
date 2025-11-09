@@ -1,11 +1,77 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
-const MicrophoneButton = () => {
+const MicrophoneButton = ({ onTranscript }) => {
   const [isListening, setIsListening] = useState(false);
+  const [isSupported, setIsSupported] = useState(true);
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    // Check if browser supports Speech Recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      setIsSupported(false);
+      return;
+    }
+
+    // Initialize speech recognition
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      // Send transcript to parent component
+      if (finalTranscript) {
+        onTranscript(finalTranscript.trim());
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      if (event.error === 'no-speech' || event.error === 'aborted') {
+        setIsListening(false);
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [onTranscript]);
 
   const toggleMicrophone = () => {
-    setIsListening(!isListening);
-    // Add your speech recognition logic here
+    if (!isSupported) {
+      alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current?.start();
+      setIsListening(true);
+    }
   };
 
   return (
@@ -15,8 +81,10 @@ const MicrophoneButton = () => {
         isListening
           ? "bg-yellow-500 hover:bg-yellow-600 animate-pulse shadow-lg shadow-yellow-500/50"
           : "bg-white/5 hover:bg-white/10 border border-yellow-500/20 hover:border-yellow-500/40"
-      }`}
+      } ${!isSupported ? "opacity-50 cursor-not-allowed" : ""}`}
       aria-label="Voice input"
+      disabled={!isSupported}
+      title={isListening ? "Stop listening" : "Start voice input"}
     >
       <svg
         className="w-4 h-4 sm:w-5 sm:h-5 text-white"

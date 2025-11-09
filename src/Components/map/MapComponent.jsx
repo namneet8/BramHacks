@@ -74,7 +74,7 @@ const MapComponent = ({ selectedLocation, onLocationSelect, onZoomChange, initia
     }
 
     const [lat, lng] = coords;
-    const zoom = selectedLocation.zoom || 10;
+    const zoom = selectedLocation.zoom || 13;
 
     // Clear previous markers
     markersRef.current.forEach(marker => {
@@ -82,29 +82,34 @@ const MapComponent = ({ selectedLocation, onLocationSelect, onZoomChange, initia
     });
     markersRef.current = [];
 
-    // Fly to location
+    // Fly to location first, then show box after animation completes
     mapInstanceRef.current.flyTo([lat, lng], zoom, { duration: 2 });
 
-    // Custom marker
-    const customIcon = L.divIcon({
-      className: 'custom-marker',
-      html: `
-        <div style="
-          width: 30px;
-          height: 30px;
-          background-color: #EAB308;
-          border: 3px solid white;
-          border-radius: 50%;
-          box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
-          transform: translate(-50%, -50%);
-        "></div>
-      `,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
-    });
+    // Wait for fly animation to complete before showing the box
+    setTimeout(() => {
+      if (!mapInstanceRef.current) return;
 
-    const marker = L.marker([lat, lng], { icon: customIcon }).addTo(mapInstanceRef.current);
-    markersRef.current.push(marker);
+      // Create a 5x5 kilometer highlighted box around the location
+      const boxSize = 2.5; // 2.5 km in each direction = 5km total width/height
+      const latOffset = boxSize / 111; // Roughly 1 degree latitude = 111 km
+      const lngOffset = boxSize / (111 * Math.cos(lat * Math.PI / 180)); // Adjust for latitude
+
+      const bounds = [
+        [lat - latOffset, lng - lngOffset], // Southwest corner
+        [lat + latOffset, lng + lngOffset]  // Northeast corner
+      ];
+
+      // Create highlighted rectangle
+      const rectangle = L.rectangle(bounds, {
+        color: '#EAB308',
+        weight: 3,
+        fillColor: '#EAB308',
+        fillOpacity: 0.2,
+        dashArray: '10, 5'
+      }).addTo(mapInstanceRef.current);
+
+      markersRef.current.push(rectangle);
+    }, 2000); // Match the flyTo duration
 
     // Optional bounds rectangle
     if (selectedLocation.bounds && Array.isArray(selectedLocation.bounds)) {

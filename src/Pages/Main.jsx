@@ -111,7 +111,7 @@ const MainPage = () => {
   }, [isDragging]);
 
   // Demo fallback data
-  const demoData = {
+  const demoData_landCover = {
     "2018": {
       "NDVI_vegetation_%": "51.34%",
       "NDBI_builtup_%": "11.28%",
@@ -126,14 +126,16 @@ const MainPage = () => {
     }
   };
 
+  // Demo fallback data
+  const demoData_aqi = {"city":"Toronto","monthly_aqi":{"2020-11":1.44,"2020-12":1.32,"2021-01":1.46,"2021-02":1.37,"2021-03":1.96,"2021-04":1.54,"2021-05":1.92,"2021-06":1.81,"2021-07":1.71,"2021-08":2.2,"2021-09":1.35,"2021-10":1.34,"2021-11":1.3,"2021-12":1.23,"2022-01":1.26,"2022-02":1.51,"2022-03":1.8,"2022-04":1.61,"2022-05":1.87,"2022-06":1.68,"2022-07":1.98,"2022-08":1.91,"2022-09":1.61,"2022-10":1.82,"2022-11":1.63,"2022-12":1.33,"2023-01":1.39,"2023-02":1.85,"2023-03":2.07,"2023-04":2.15,"2023-05":2.03,"2023-06":2.17,"2023-07":2.3,"2023-08":1.9,"2023-09":1.93,"2023-10":1.73,"2023-11":1.58,"2023-12":1.58,"2024-01":1.56,"2024-02":1.88,"2024-03":1.98,"2024-04":1.96,"2024-05":1.93,"2024-06":1.94,"2024-07":2.28,"2024-08":2.09,"2024-09":2.21,"2024-10":1.77,"2024-11":1.49,"2024-12":1.54,"2025-01":1.67,"2025-02":2.03,"2025-03":2.13,"2025-04":2.06,"2025-05":1.63,"2025-06":1.81,"2025-07":2.01,"2025-08":1.97,"2025-09":2.02,"2025-10":1.83,"2025-11":1.88,"2026-01":2.0,"2026-02":2.0,"2026-03":2.01,"2026-04":2.02,"2026-05":2.03,"2026-06":2.03,"2026-07":2.04,"2026-08":2.05,"2026-09":2.05,"2026-10":2.06,"2026-11":2.07,"2026-12":2.08,"2027-01":2.08,"2027-02":2.09,"2027-03":2.1,"2027-04":2.11,"2027-05":2.11,"2027-06":2.12,"2027-07":2.13,"2027-08":2.13,"2027-09":2.14,"2027-10":2.15,"2027-11":2.16,"2027-12":2.16}};
 
   const tabs = [
     { id: "map", label: "Map" },
-    { id: "climate", label: "Climate Stats" },
+    { id: "landcover", label: "Land Cover" },
     { id: "satellite", label: "Satellite Imagery" },
     { id: "changes", label: "Changes" },
     { id: "terrain", label: "Terrain" },
-    { id: "data", label: "Data Layers" }
+    { id: "aiq", label: "Air Quality Index" }
   ];
 
   // Render the appropriate LEFT panel component based on active tab
@@ -141,10 +143,10 @@ const MainPage = () => {
     switch (activeTab) {
       case "map":
         return <MapComponent selectedLocation={selectedLocation} onLocationSelect={setSelectedLocation} />;
-      case "climate":
+      case "landcover":
         return (
           <LandCoverComparison
-            percentage_summary={summaryData || demoData}
+            percentage_summary={summaryData || demoData_landCover}
           />
         );
       case "satellite":
@@ -153,8 +155,9 @@ const MainPage = () => {
         return <ChangesView location={selectedLocation} imageArray={ images} />;
       case "terrain":
         return <TerrainView location={selectedLocation} />;
-      case "data":
-        // return <AirQualityIndex location={selectedLocation} />;
+      case "aiq":
+        return <AirQualityIndex monthly_aqi={demoData_aqi.monthly_aqi} city={demoData_aqi.city} />;
+
       default:
         return <MapComponent selectedLocation={selectedLocation} onLocationSelect={setSelectedLocation} />;
     }
