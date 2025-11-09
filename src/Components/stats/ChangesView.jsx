@@ -1,6 +1,9 @@
-const ChangesView = ({ location }) => {
+import ImageComponent from "./ImageComponent";
+
+const ChangesView = ({ location, imageArray }) => {
   return (
     <div className="h-full overflow-y-auto p-6">
+      {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-2">Climate Changes Over Time</h2>
         <p className="text-gray-400 text-sm">
@@ -10,6 +13,7 @@ const ChangesView = ({ location }) => {
 
       {location ? (
         <div className="space-y-4">
+          {/* Temperature Trends */}
           <div className="bg-black/40 backdrop-blur-md border border-yellow-500/20 rounded-xl p-4">
             <h3 className="text-yellow-500 font-semibold mb-3">Temperature Trends (1980-2024)</h3>
             <div className="h-40 bg-gradient-to-t from-red-900/20 to-transparent rounded-lg flex items-end justify-center">
@@ -17,6 +21,7 @@ const ChangesView = ({ location }) => {
             </div>
           </div>
 
+          {/* Key Observations */}
           <div className="bg-black/40 backdrop-blur-md border border-yellow-500/20 rounded-xl p-4">
             <h3 className="text-yellow-500 font-semibold mb-3">Key Observations</h3>
             <ul className="space-y-2 text-sm text-gray-300">
@@ -33,6 +38,20 @@ const ChangesView = ({ location }) => {
                 <span>Extreme weather events: --</span>
               </li>
             </ul>
+          </div>
+
+          {/* Images Grid */}
+          <div
+            className="grid gap-4"
+            style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}
+          >
+            {Array.isArray(imageArray) && imageArray.length > 0 ? (
+              imageArray.map((img, index) => (
+                <ImageComponent key={index} base64Data={img} />
+              ))
+            ) : (
+              <div>No images available for this location.</div>
+            )}
           </div>
         </div>
       ) : (
