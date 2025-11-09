@@ -3,7 +3,7 @@ const TerrainView = ({ location, imageArray  }) => {
   return (
     <div className="h-full overflow-y-auto p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">Night Analysis</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">Night Light Analysis</h2>
         <p className="text-gray-400 text-sm">
           {location ? `Terrain data for ${location.name.split(',')[0]}` : 'Select a location to view terrain data'}
         </p>

@@ -184,7 +184,7 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
     { id: "landcover", label: "Land Cover" },
     { id: "satellite", label: "Satellite Imagery" },
     { id: "changes", label: "Changes" },
-    { id: "terrain", label: "Terrain" },
+    { id: "terrain", label: "Night Light" },
     { id: "aiq", label: "Air Quality Index" }
   ];
 
