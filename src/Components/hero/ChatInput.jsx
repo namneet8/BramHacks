@@ -42,7 +42,7 @@ const ChatInput = ({ input, setInput, onSubmit }) => {
           value={input}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder="Ask about satellite intelligence..."
+          placeholder="Type a city and the insight you want..."
           className="flex-1 bg-transparent text-white text-sm sm:text-base placeholder-gray-400 outline-none resize-none py-2 sm:py-3 px-1 sm:px-2 max-h-[120px] overflow-y-auto"
           rows={1}
           style={{

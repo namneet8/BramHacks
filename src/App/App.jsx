@@ -7,7 +7,7 @@ import { Routes, Route } from "react-router-dom";  // Only Routes & Route
 function App() {
   return (
     <>
-      <NavBar />
+      {/* <NavBar /> */}
       <Routes>
         <Route path="/" element={<Hero />} />
         <Route path="/main" element={<MainPage />} />
